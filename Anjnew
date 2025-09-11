@@ -1,0 +1,53 @@
+from PIL import Image, ImageDraw, ImageFont
+
+def generate_precise_arrow(policy_term, unit_width=50, height=100):
+    width = policy_term * unit_width
+    arrow_height = height
+    arrow_thickness = 35  # Increased thickness for better visibility
+    margin = 30
+    amber = "#FFBF00"
+
+    img = Image.new("RGB", (width + 2 * margin, arrow_height + 2 * margin), "white")
+    draw = ImageDraw.Draw(img)
+
+    y_center = arrow_height // 2 + margin
+    left = margin
+    right = width + margin
+
+    # Draw arrow line
+    draw.line([(left + 40, y_center), (right - 40, y_center)], fill=amber, width=arrow_thickness)
+
+    # Draw left arrowhead
+    draw.polygon([
+        (left, y_center),
+        (left + 40, y_center - 40),
+        (left + 40, y_center + 40)
+    ], fill=amber)
+
+    # Draw right arrowhead
+    draw.polygon([
+        (right, y_center),
+        (right - 40, y_center - 40),
+        (right - 40, y_center + 40)
+    ], fill=amber)
+
+    # Load font
+    try:
+        font = ImageFont.truetype("arialbd.ttf", 32)  # Slightly increased font size
+    except:
+        font = ImageFont.load_default()
+
+    # Draw numbers
+    for i in range(1, policy_term + 1):
+        x = margin + i * unit_width - unit_width // 2
+        if left + 40 <= x <= right - 40:  # Ensure numbers are not on arrowheads
+            text = str(i)
+            text_width, text_height = draw.textsize(text, font=font)
+            draw.text((x - text_width // 2, y_center - text_height // 2), text, fill="black", font=font)
+
+    return img
+
+img = generate_precise_arrow(policy_term=20)
+output_path = "/mnt/data/amber_arrow_policy_term_20_fixed.png"
+img.save(output_path)
+print(f"Arrow image saved as {output_path}")
