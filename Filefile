@@ -1,0 +1,48 @@
+from PIL import Image, ImageDraw, ImageFont
+
+def create_policy_arrow(policy_term=20, width_per_year=50, height=50, save_path="policy_arrow.png"):
+    # Calculate image width based on policy term
+    width = (policy_term * width_per_year) + 100  # extra for arrows
+    
+    # Create blank image with transparency
+    img = Image.new("RGBA", (width, height), (255, 255, 255, 0))
+    draw = ImageDraw.Draw(img)
+    
+    # Line coordinates
+    line_y = height // 2
+    start_x, end_x = 40, width - 40
+    
+    # Amber color
+    amber = (204, 153, 0)
+    
+    # Draw line
+    draw.line([(start_x, line_y), (end_x, line_y)], fill=amber, width=12)
+    
+    # Draw arrowheads
+    arrow_size = 15
+    draw.polygon([(start_x, line_y),
+                  (start_x + arrow_size, line_y - arrow_size//2),
+                  (start_x + arrow_size, line_y + arrow_size//2)], fill=amber)
+    
+    draw.polygon([(end_x, line_y),
+                  (end_x - arrow_size, line_y - arrow_size//2),
+                  (end_x - arrow_size, line_y + arrow_size//2)], fill=amber)
+    
+    # Load font (default if no TTF available)
+    try:
+        font = ImageFont.truetype("arial.ttf", 20)
+    except:
+        font = ImageFont.load_default()
+    
+    # Draw numbers dynamically
+    spacing = (end_x - start_x) / (policy_term - 1)
+    for i in range(policy_term):
+        x = int(start_x + i * spacing)
+        draw.text((x - 5, line_y + 10), str(i+1), font=font, fill=(0,0,0))
+    
+    # Save image
+    img.save(save_path)
+    print(f"Saved: {save_path}")
+
+# Example usage
+create_policy_arrow(policy_term=30, save_path="arrow_30.png")
